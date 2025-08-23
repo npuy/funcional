@@ -74,3 +74,67 @@ cursos_aprobados (_, _, _, lista) nota = [cod | (_, cod, notaCurso) <- lista, no
 -- un determinado a ̃no dado como parámetro. (Sugerencia: use com-
 -- prensión de listas).
 generacion listaEstudiantes ano = [(nom, ci) | (nom, ci, anoIngreso, _) <- listaEstudiantes, anoIngreso == ano]
+
+-- Rehaga el ejercicio anterior usando ahora tipos de datos algebraicos en
+-- lugar de tuplas.
+
+data Nombre = Nombre String
+    deriving(Show)
+data CI = CI Int
+    deriving(Show)
+data Ano = Ano Int
+    deriving(Show, Eq)
+data CursoCodigo = CursoCodigo Int
+    deriving(Show)
+data Nota = Nota Int
+    deriving(Show, Eq)
+data Curso = Curso Nombre CursoCodigo Nota
+    deriving(Show)
+data Cursos = Cursos [Curso]
+    deriving(Show)
+data Estudiante = Estudiante Nombre CI Ano Cursos
+    deriving(Show)
+
+est1 = (Estudiante (Nombre "nico") (CI 12345678) (Ano 2020) (Cursos [(Curso (Nombre "GAL") (CursoCodigo 1234) (Nota 10))]))
+est2 = (Estudiante (Nombre "nico") (CI 12345678) (Ano 2020) (Cursos [(Curso (Nombre "GAL") (CursoCodigo 1234) (Nota 10))]))
+est3 = (Estudiante (Nombre "nico") (CI 12345678) (Ano 2019) (Cursos [(Curso (Nombre "GAL") (CursoCodigo 1234) (Nota 10))]))
+
+list = [est1, est2, est3]
+
+nombre_ci_alg :: Estudiante -> (Nombre, CI)
+nombre_ci_alg (Estudiante nom ci _ _) = (nom, ci)
+
+ano_ingreso_alg :: Estudiante -> Ano
+ano_ingreso_alg (Estudiante _ _ ano _) = ano
+
+cursos_aprobados_alg :: Estudiante -> Nota -> [CursoCodigo]
+cursos_aprobados_alg (Estudiante _ _ _ (Cursos lista)) nota = [cod | (Curso _ cod notaCurso) <- lista, nota == notaCurso]
+
+generacion_alg :: [Estudiante] -> Ano -> [(Nombre, CI)]
+generacion_alg listaEstudiantes ano = [(nom, ci) | (Estudiante nom ci anoIngreso _) <- listaEstudiantes, anoIngreso == ano]
+
+-- Deseamos representar pares internamente ordenados, que son pares de
+-- n ́umeros reales (r, s) tales que r <= 6s.
+-- (a) Defina el tipo de los pares ordenados
+data ParesOrdenados = Par Float Float
+    deriving(Show)
+
+-- (b) Defina una funci ́on que dado un par de reales cualesquiera retorna
+-- un par internamente ordenado.
+ord :: Float -> Float -> ParesOrdenados
+ord r s 
+    | r <= 6 * s = (Par r s)
+    | otherwise  = (Par s r)
+
+-- (c) Defina la operaci ́on de suma de pares internamente ordenados, que
+-- suma las correspondientes componentes de dos pares retornando un
+-- nuevo par.
+suma_ord :: ParesOrdenados -> ParesOrdenados -> ParesOrdenados
+suma_ord (Par r1 s1) (Par r2 s2) = (Par (r1+r2) (s1+s2)) 
+
+-- (d) Defina la operaci ́on de multiplicaci ́on por un escalar, que dado un real
+-- y un par internamente ordenado multiplica la primera componente
+-- del par por el escalar. El resultado debe ser un par internamente or-
+-- denado. Si se pierde el orden se deben intercambiar las componentes.
+mul_ord :: ParesOrdenados -> Float -> ParesOrdenados
+mul_ord (Par r s) scalar = ord (r * scalar) s
