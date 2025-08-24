@@ -138,3 +138,69 @@ suma_ord (Par r1 s1) (Par r2 s2) = (Par (r1+r2) (s1+s2))
 -- denado. Si se pierde el orden se deben intercambiar las componentes.
 mul_ord :: ParesOrdenados -> Float -> ParesOrdenados
 mul_ord (Par r s) scalar = ord (r * scalar) s
+
+-- Todo n ́umero entero x se puede descomponer de manera  ́unica en t ́erminos
+-- de dos n ́umeros enteros y y z , tales que:
+-- •−5 < y <= 5
+-- •x = y + 10 ×z.
+-- Defina una funci ́on que dado un entero x devuelve una tupla con los
+-- n ́umeros y y z .
+term :: Int -> (Int, Int)
+term x 
+    | (mod x 10) > 5 = (((div x 10) + 1), ((mod x 10) - 10))
+    | otherwise    = ((div x 10), (mod x 10))
+
+-- Deseamos representar n ́umeros racionales y operaciones sobre ellos. Los
+-- racionales son representados por pares de enteros cuya segunda compo-
+-- nente es distinta de cero. Cada racional tiene infinitas representaciones,
+-- pero existe la llamada representaci ́on can ́onica en la que la segunda com-
+-- ponente del par de enteros es mayor que cero y ambos enteros son primos
+-- entre si.
+-- (a) Defina el tipo racional
+data Rac = Rac Int Int
+    deriving(Show)
+
+-- (b) Defina una funci ́on que dado un par de enteros, el segundo de los
+-- cuales es distinto de cero, retorne un racional en su representaci ́on
+-- can ́onica.
+can :: (Int, Int) -> Rac
+can (x, y)
+    | y < 0     = (Rac ((-1) * div x (gcd x y)) ((-1) * div y (gcd x y)))
+    | otherwise = (Rac (div x (gcd x y)) (div y (gcd x y)))
+
+-- (c) Defina las operaciones de suma, resta, multiplicaci ́on, y negaci ́on de
+-- racionales, e int2rac, que convierte un entero en un racional. Dichas
+-- operaciones deben devolver representaciones can ́onicas como resul-
+-- tado.
+-- Nota: Puede usar la funci ́on gcd (definida en el Prelude) la cual
+-- computa el m ́aximo com ́un divisor de dos n ́umeros.
+suma :: Rac -> Rac -> Rac
+suma (Rac x1 y1) (Rac x2 y2) = can (x1 * y2 + x2 * y1, y1 * y2)
+
+resta :: Rac -> Rac -> Rac
+resta (Rac x1 y1) (Rac x2 y2) = can (x1 * y2 - x2 * y1, y1 * y2)
+
+mul :: Rac -> Rac -> Rac
+mul (Rac x1 y1) (Rac x2 y2) = can (x1 * x2, y1 * y2)
+
+neg :: Rac -> Rac
+neg (Rac x1 y1) = can ((-1) * x1, y1)
+
+int2rac :: Int -> Rac
+int2rac x = (Rac x 1)
+
+-- Dado el siguiente tipo para representar tri ́angulos:
+-- data Triangulo = Equi Int |Iso Int Int |Esca Int Int Int
+-- Defina la funci ́on mkTriangulo que dados tres enteros positivos, que rep-
+-- resentan a los lados de un tri ́angulo v ́alido, retorna un valor de tipo
+-- Triangulo.
+data Triangulo = Equi Int |Iso Int Int |Esca Int Int Int
+    deriving(Show)
+
+mkTriangulo :: Int -> Int -> Int -> Triangulo
+mkTriangulo a b c
+    | a == b && b == c = (Equi a)
+    | a == b    = (Iso a c)
+    | b == c    = (Iso b a)
+    | c == a    = (Iso c b)
+    | otherwise = (Esca a b c)
