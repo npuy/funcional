@@ -50,3 +50,57 @@ twice f = f . f
 sumaPrimeros l@([]) = l
 sumaPrimeros l@(x:[]) = l
 sumaPrimeros l@(x:y:xs) = x+y:l
+
+-- 5. La funci ́on flip tiene el siguiente tipo: (a → b → c) → b → a → c.
+-- Observando el tipo, ¿puede determinar qu ́e hace la funci ́on?
+-- (a) Implemente la funci ́on flip.
+flip1 f b a = f a b
+
+-- (b) Defina una expresi ́on lambda equivalente a la funci ́on flip.
+flip2 = \f b a -> f a b
+
+-- 6. Usando secciones y composici ́on de funciones, implemente una funci ́on
+-- cuentas :: Integer →Integer , que dado un n ́umero, le sume 3, al resultado
+-- lo multiplique por 2, luego le reste 8 y finalmente lo divida por dos.
+-- cuentas = ((*) (1/2)) . ((+) (-8)) . ((*) 2) . ((+) 3)
+-- cuentas n = flip (/) 2 $ flip (-) 8 $ (*) 2 $ (+) 3 n
+cuentas = (flip (/) 2) . (flip (-) 8) . ((*) 2) . ((+) 3)
+
+-- 7. (a) Implemente la funci ́on map usando listas por comprensi ́on.
+map1 f l = [f x | x <- l]
+-- (b) Implemente la funci ́on filter usando listas por comprensi ́on.
+filter1 p l = [x | x <- l, p x]
+
+-- 8. Usando map, defina una funci ́on squares :: [ Int ] → [Int ] que dada una
+-- lista de enteros retorne una lista con los cuadrados de los elementos de la
+-- lista.
+squares :: [Int] -> [Int]
+squares = map $ flip (^) 2
+
+-- 9. Defina la funci ́on length en t ́erminos de map y sum .
+length1 = sum . map (const 1)
+
+-- 10. Usando filter , defina:
+-- (a) Una funci ́on all :: (a →Bool ) →[ a ] →Bool que dada una condici ́on
+-- y una lista, verifique si todos los elementos de la lista cumplen con
+-- dicha condici ́on. Ejemplos:
+-- all (>0) [1, 2, 3] retorna True
+-- all (≡’a’) [’a’, ’b’, ’c’] retorna False
+all1 :: (a -> Bool) -> [a] -> Bool
+all1 p = null . filter (not . p)
+
+-- (b) Una funci ́on elem :: Eq a ⇒ a → [a ] → Bool que determina si un
+-- elemento pertenece a una lista. Ejemplos:
+-- elem 2 [1, 2, 3] retorna True
+-- elem ’a’ [’b’, ’c’] retorna False
+elem1 :: Eq a => a -> [a] -> Bool
+elem1 x = not . null . filter ((==) x)
+
+-- 11. Indique el tipo y explique lo que hace la siguiente funci ́on:
+rara p = filter p . filter (not . p)
+
+-- 12. Indique el tipo y explique lo que hace la siguiente funci ́on:
+rara2 = zipWith (.) [length, sum] [drop 4, take 4]
+-- Muestre un ejemplo de aplicaci ́on correcta de la expresi ́on (head rara2 ) y
+-- su resultado.
+-- head rara2 [1..10] -> 6
