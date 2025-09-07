@@ -104,3 +104,59 @@ rara2 = zipWith (.) [length, sum] [drop 4, take 4]
 -- Muestre un ejemplo de aplicaci ́on correcta de la expresi ́on (head rara2 ) y
 -- su resultado.
 -- head rara2 [1..10] -> 6
+
+-- 13. (a) Utilizando flip, mod , length , map y filter , defina una funci ́on que
+-- dada una lista de enteros retorne la cantidad de elementos pares que
+-- tiene la lista.
+cant_pares = length . filter ((==) 0) . map (flip mod $ 2)
+
+-- (b) Haga lo mismo, pero sin usar map.
+cant_pares2 = length . filter (((==) 0) . (flip mod $ 2))
+
+-- (c) Haga lo mismo, pero sin usar flip.
+cant_pares3 = length . filter (\x -> mod x 2 == 0)
+
+-- 14. La funci ́on filter se puede definir en t ́erminos de concat y map:
+-- filter p = concat . map box
+-- where box x = ...
+-- Dar la definici ́on de box .
+filter2 p = concat . map box
+    where box x 
+            | p x       = [x]
+            | otherwise = []
+
+-- 15. Considere el tipo Triangulo definido en el Ejercicio 11 del Pr ́actico 1.
+-- data Triangulo = Equi Int |Iso Int Int |Esca Int Int Int
+-- Defina una funci ́on isos :: [Triangulo ] → Int , que dada una lista de
+-- tri ́angulos retorna la cantidad de ellos que son is ́osceles. Defina isos us-
+-- ando:
+-- (a) listas por comprensi ́on.
+data Triangulo = Equi Int |Iso Int Int |Esca Int Int Int
+    deriving Show
+triangulos = [(Equi 1), (Equi 1), (Equi 1), (Iso 2 1), (Iso 2 1), (Iso 2 1), (Esca 1 2 3), (Esca 1 2 3)]
+isos :: [Triangulo] -> Int
+isos l = length [ 1 | (Iso _ _) <- l ]
+
+-- (b) filter
+isosf :: [Triangulo] -> Int
+isosf = length . filter filtro
+    where filtro t = case t of 
+                    (Iso _ _) -> True
+                    _ -> False 
+
+-- 16. Considere la siguiente representaci ́on de matrices de dos dimensiones en
+-- t ́erminos de listas de listas:
+-- type Matriz a = [[ a ]]
+-- donde vamos a asumir que todas las filas (dadas por las listas de tipo [a])
+-- son del mismo tama ̃no. Por ejemplo,
+-- m = [[1, 2, 3], [4, 5, 6] ]
+-- representa una matriz de 2x3.
+-- (a) Usando drop, defina una funci ́on columna :: Int → Matriz a → [ a ]
+-- tal que columna i m retorna la i - ́esima columna de la matriz m .
+-- (b) Usando columna, defina una funci ́on transpose ::Matriz a →Matriz a
+-- que transpone una matriz.
+-- Por ejemplo, transpose m retorna [ [1, 4], [2, 5], [3, 6] ]
+
+-- 17. Explique por qu ́e la siguiente definici ́on no es aceptada por el sistema de
+-- tipos de Haskell:
+-- dobleAp f = (f True, f ’a’)
