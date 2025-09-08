@@ -153,10 +153,21 @@ isosf = length . filter filtro
 -- representa una matriz de 2x3.
 -- (a) Usando drop, defina una funci ́on columna :: Int → Matriz a → [ a ]
 -- tal que columna i m retorna la i - ́esima columna de la matriz m .
+columna i m = concat $ map aux m
+    where aux fila = take 1 $ drop (i-1) fila
+
 -- (b) Usando columna, defina una funci ́on transpose ::Matriz a →Matriz a
 -- que transpone una matriz.
 -- Por ejemplo, transpose m retorna [ [1, 4], [2, 5], [3, 6] ]
+test m 0 = m
+test m i = m ++ (test m (i-1))
+transposeRec 1 m = [columna 1 m]
+transposeRec i m = (transposeRec (i-1) m) ++ [(columna i m)]
+transpose m = transposeRec (length $ primero m) m
+    where primero (x:_) = x
 
 -- 17. Explique por qu ́e la siguiente definici ́on no es aceptada por el sistema de
 -- tipos de Haskell:
 -- dobleAp f = (f True, f ’a’)
+-- Esto no funciona en haskell porque f se esta aplicando a un Bool y a un Char,
+-- Bool y Char no son el mismo tipo
