@@ -65,3 +65,28 @@ merge xs [] = xs
 merge (x:xs) (y:ys)
     | x < y = x : (merge xs (y:ys))
     | otherwise = y : (merge (x:xs) ys)
+
+-- 4. Defina las siguientes funciones como foldr :
+-- (a) sumSqs :: Num a ⇒[a ] →a
+sumSqsF :: Num a => [a] -> a
+sumSqsF = foldr func 0
+    where func a b = a * a + b
+
+-- (b) elimDups :: Eq a ⇒[ a ] →[ a ]
+elimDupsF :: Eq a => [a] -> [a]
+elimDupsF = foldr func []
+    where func a b = 
+            case b of
+                b@(x:xs) -> if a == x then b else a:b
+                b -> a:b
+
+-- (c) split :: [ a ] →([a ],[ a ])
+splitF :: [a] -> ([a],[a])
+splitF = foldr func ([],[])
+    where func a (bs, as) = (a:as, bs)
+
+-- (d) takeWhile :: (a →Bool ) →[ a ] →[ a ]
+takeWhileF p = foldr func []
+    where func a b 
+            | p a = a:b
+            | otherwise = []
