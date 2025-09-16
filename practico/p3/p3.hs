@@ -90,3 +90,59 @@ takeWhileF p = foldr func []
     where func a b 
             | p a = a:b
             | otherwise = []
+
+-- 5. Defina las siguientes funciones por recursi ́on estructural usando tail-recursion.
+-- (a) sumSqs :: Num a ⇒[a ] →a
+sumSqsT = sumSqsAcc 0
+    where 
+        sumSqsAcc acc [] = acc
+        sumSqsAcc acc (x:xs) = sumSqsAcc (x*x + acc) xs
+
+-- (b) elem :: Eq a ⇒a →[ a ] →Bool
+elemT e = elemAcc False
+    where
+        elemAcc acc [] = acc
+        elemAcc acc (x:xs) 
+            | x == e = elemAcc True xs
+            | otherwise = elemAcc acc xs
+
+-- (c) elimDups :: Eq a ⇒[ a ] →[ a ]
+elimDupsT [] = []
+elimDupsT (x:xs) = elimDupsAcc [x] xs
+    where 
+        elimDupsAcc acc [] = reverse acc
+        elimDupsAcc acc@(a:as) (x:xs)
+            | a == x = elimDupsAcc acc xs
+            | otherwise = elimDupsAcc (x:acc) xs
+
+-- (d) split :: [ a ] →([a ],[a ])
+splitT = splitAccA ([],[])
+    where
+        splitAccA (as,bs) [] = (reverse as,reverse bs)
+        splitAccA (as,bs) (x:xs) = splitAccB (x:as, bs) xs
+        splitAccB (as,bs) [] = (reverse as,reverse bs)
+        splitAccB (as,bs) (x:xs) = splitAccA (as, x:bs) xs
+
+-- (e) maxInd :: Ord a ⇒[ a ] →(a,Int )
+maxIndT ls@(x:xs) = maxIndAcc (x, len) xs
+    where
+        len = length ls
+        maxIndAcc (x, n) [] = (x, n-1)
+        maxIndAcc (x, n) (y:ys)
+            | x < y = maxIndAcc (y, len) ys
+            | otherwise = maxIndAcc (x, n-1) ys
+
+-- (f) takeWhile :: (a →Bool ) →[ a ] →[ a ]
+takeWhileT p = takeWhileAcc []
+    where
+        takeWhileAcc acc (x:xs)
+            | p x = takeWhileAcc (x:acc) xs
+            | otherwise = reverse acc
+
+-- (g) dropWhile :: (a →Bool ) →[a ] →[ a ]
+-- dropWhileT p = dropWhileAcc
+--     where
+--         dropWhileAcc (x:xs)
+--             | p x = dropWhileAcc xs
+--             | otherwise = xs
+ 
