@@ -146,3 +146,6 @@ takeWhileT p = takeWhileAcc []
 --             | p x = dropWhileAcc xs
 --             | otherwise = xs
  
+-- 6. Defina la funci ́on sumSqs como foldl .
+sumSqsFL :: Num a => [a] -> a
+sumSqsFL = foldl (\b a -> b + a*a) 0
