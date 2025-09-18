@@ -149,3 +149,24 @@ takeWhileT p = takeWhileAcc []
 -- 6. Defina la funci ́on sumSqs como foldl .
 sumSqsFL :: Num a => [a] -> a
 sumSqsFL = foldl (\b a -> b + a*a) 0
+
+-- 7. Sea h x xs = x −sum xs. ¿Cu ́al de las siguientes afirmaciones es correcta?
+-- (a) h x xs = foldr (−) x xs
+-- (b) h x xs = foldl (−) x xs
+-- b es la correcta lo que hace es x - el primer elemento de xs luego se toma el 
+-- resultado y se resta al siguiente elemento de xs y asi sucessivamente
+
+-- 8. Una buena implementaci ́on de elem como foldr es m ́as eficiente que una
+-- implementaci ́on de elem como foldl . Defina elem como foldr y como
+-- foldl . Compare las implementaciones ejecutando con los argumentos 1
+-- y [ 1 ..10000000]. Explique por qu ́e una es m ́as eficiente que la otra.
+-- elemFR8 x = foldr faux False
+--     where
+--         faux _ True = True
+--         faux a _ = a == x
+-- elemFL8 x = foldl faux False
+--     where
+--         faux True _ = True
+--         faux _ a = a == x
+elemFR8 x = foldr (\ a b -> b || a == x) False
+elemFL8 x = foldl (\ b a -> b || a == x) False
