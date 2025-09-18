@@ -124,13 +124,19 @@ splitT = splitAccA ([],[])
         splitAccB (as,bs) (x:xs) = splitAccA (as, x:bs) xs
 
 -- (e) maxInd :: Ord a ⇒[ a ] →(a,Int )
-maxIndT ls@(x:xs) = maxIndAcc (x, len) xs
+-- maxIndT ls@(x:xs) = maxIndAcc (x, len) xs
+--     where
+--         len = length ls
+--         maxIndAcc (x, n) [] = (x, n-1)
+--         maxIndAcc (x, n) (y:ys)
+--             | x < y = maxIndAcc (y, len) ys
+--             | otherwise = maxIndAcc (x, n-1) ys
+maxIndT ls@(x:xs) = maxIndAcc (x, 0, 0) xs
     where
-        len = length ls
-        maxIndAcc (x, n) [] = (x, n-1)
-        maxIndAcc (x, n) (y:ys)
-            | x < y = maxIndAcc (y, len) ys
-            | otherwise = maxIndAcc (x, n-1) ys
+        maxIndAcc = (x, n, pos) [] = (x, n)
+        maxIndAcc (x, n, pos) (y:ys)
+            | x < y = maxIndAcc (y, pos + 1, pos + 1) ys
+            | otherwise = maxIndAcc (x, n, pos + 1) ys
 
 -- (f) takeWhile :: (a →Bool ) →[ a ] →[ a ]
 takeWhileT p = takeWhileAcc []
