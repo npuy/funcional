@@ -133,7 +133,7 @@ splitT = splitAccA ([],[])
 --             | otherwise = maxIndAcc (x, n-1) ys
 maxIndT ls@(x:xs) = maxIndAcc (x, 0, 0) xs
     where
-        maxIndAcc = (x, n, pos) [] = (x, n)
+        maxIndAcc (x, n, pos) [] = (x, n)
         maxIndAcc (x, n, pos) (y:ys)
             | x < y = maxIndAcc (y, pos + 1, pos + 1) ys
             | otherwise = maxIndAcc (x, n, pos + 1) ys
@@ -176,3 +176,19 @@ sumSqsFL = foldl (\b a -> b + a*a) 0
 --         faux _ a = a == x
 elemFR8 x = foldr (\ a b -> b || a == x) False
 elemFL8 x = foldl (\ b a -> b || a == x) False
+
+-- 9. Defina la funci ́on maxInd usando foldr y usando foldl .
+-- (e) maxInd :: Ord a ⇒[ a ] →(a,Int )
+-- Retorna el m ́aximo de una lista no vac ́ıa y el  ́ındice de su primera
+-- ocurrencia. Los  ́ındices se comienzan a numerar en 0. Por ejemplo,
+-- maxInd [8,10,6,10,10] retorna (10,1).
+
+maxIndFR (x:xs) = fst $ foldr fn ((x, 0), 1) xs
+    where fn y ((x, nx), n)
+            | y > x = ((y, n), n + 1)
+            | otherwise = ((x, nx), n + 1)
+
+maxIndFL (x:xs) = fst $ foldl fn ((x, 0), 1) xs
+    where fn ((x, nx), n) y
+            | y > x = ((y, n), n + 1)
+            | otherwise = ((x, nx), n + 1)
