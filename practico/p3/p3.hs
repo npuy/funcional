@@ -211,3 +211,13 @@ elimDupsfl = (foldl fn []) . reverse
         fn ls@(x:xs) a
             | x == a = ls
             | otherwise = a:ls
+
+-- 11. La funci ́on foldl siempre recorre completamente la lista. Defina la funci ́on
+-- takeWhile usando foldl . Debe usar el acumulador para saber cu ́ando se
+-- obtuvo toda la informaci ́on relevante de la lista.
+-- takeWhile :: (a →Bool ) →[ a ] →[ a ]
+takeWhilefl p = reverse . fst . foldl fn ([], True)
+    where
+        fn (acc, continue) a
+            | continue && p a = (a:acc, continue)
+            | otherwise = (acc, False)
