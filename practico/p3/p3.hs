@@ -182,7 +182,6 @@ elemFL8 x = foldl (\ b a -> b || a == x) False
 -- Retorna el m ́aximo de una lista no vac ́ıa y el  ́ındice de su primera
 -- ocurrencia. Los  ́ındices se comienzan a numerar en 0. Por ejemplo,
 -- maxInd [8,10,6,10,10] retorna (10,1).
-
 maxIndFR (x:xs) = fst $ foldr fn ((x, 0), 1) xs
     where fn y ((x, nx), n)
             | y > x = ((y, n), n + 1)
@@ -192,3 +191,23 @@ maxIndFL (x:xs) = fst $ foldl fn ((x, 0), 1) xs
     where fn ((x, nx), n) y
             | y > x = ((y, n), n + 1)
             | otherwise = ((x, nx), n + 1)
+
+-- 10. Al recorrer una lista las funciones foldr y foldl pueden desarmar y recon-
+-- stru ́ır la misma. En el caso de foldl , la reconstrucci ́on invierte la lista.
+-- Defina split y elimDups usando foldl y reverse.
+-- (d) split :: [ a ] →([a ],[a ])
+-- Divide una lista en dos listas colocando sus elementos de forma al-
+-- ternada. Por ejemplo, split [2,4,6,8,7] retorna ([2,6,7],[4,8]).
+splitfl = (foldl fn ([],[])) . reverse
+    where fn (xs, ys) a = (a:ys, xs)
+
+-- (c) elimDups :: Eq a ⇒[ a ] →[ a ]
+-- Elimina los duplicados adyacentes de una lista.
+-- Por ejemplo, elimDups [1,2,2,3,4,4,4,3] retorna [1,2,3,4,3].
+elimDupsfl :: Eq a => [a] -> [a]
+elimDupsfl = (foldl fn []) . reverse
+    where 
+        fn [] a = [a]
+        fn ls@(x:xs) a
+            | x == a = ls
+            | otherwise = a:ls
