@@ -221,3 +221,77 @@ takeWhilefl p = reverse . fst . foldl fn ([], True)
         fn (acc, continue) a
             | continue && p a = (a:acc, continue)
             | otherwise = (acc, False)
+
+-- 12. Suponga que representamos n ́umeros naturales como listas de d ́ıgitos or-
+-- denados de forma descendente seg ́un su significaci ́on. Por ejemplo [1,2,5]
+-- representa al n ́umero 125.
+-- (a) Defina una funci ́on sucesor :: [Int ] → [ Int ], que dado un natural en
+-- esta representaci ́on compute el siguiente natural. ¿Cu ́al estrategia
+-- resulta m ́as adecuada para implementar esta funci ́on, la recursi ́on o
+-- la recorrida con acumulador? Escriba la funci ́on como/usando foldr
+-- o foldl , siguiendo la estrategia m ́as adecuada.
+sucesor :: [Int] -> [Int]
+sucesor ls = if overflow == 1 then 1:list else list
+    where
+        (list, overflow) = foldr fn ([], 1) ls
+        fn a (ls, 0) = (a:ls, 0)
+        fn a (ls, acc) = (((mod (a + acc) 10) : ls), (div (a + acc) 10))
+
+-- (b) Defina una funci ́on decimal ::[ Int ] →Int , que dado un natural en esta
+-- representaci ́on compute el entero correspondiente. ¿Cu ́al estrategia
+-- resulta m ́as adecuada para implementar esta funci ́on, la recursi ́on o
+-- la recorrida con acumulador? Escriba la funci ́on como/usando foldr
+-- o foldl , siguiendo la estrategia m ́as adecuada.
+decimal :: [Int] -> Int
+decimal = foldl (\ b a -> 10*b + a) 0
+
+-- (c) Defina una funci ́on repr :: Int →[Int ], que dado un natural (de tipo
+-- Int ) retorna su representaci ́on.
+-- repr :: Int -> [Int]
+-- repr 0 = []
+-- repr n = (mod n 10) : (repr (div n 10))
+repr :: Int -> [Int]
+repr = repracc []
+repracc acc 0 = acc
+repracc acc n = repracc ((mod n 10): acc) (div n 10)
+
+-- 13. El algoritmo de Luhn es una f ́ormula de checksum que se usa para validar
+-- datos num ́ericos tales como n ́umeros de tarjetas de cr ́edito o n ́umeros de
+-- identificaci ́on. Dado un n ́umero natural (de tipo Int ), tal que el d ́ıgito
+-- menos significativo corresponde al d ́ıgito de control, el algoritmo realiza
+-- los siguientes pasos para validarlo:
+-- Se obtiene la lista de d ́ıgitos del n ́umero ordenados de forma descen-
+-- dente seg ́un su significaci ́on. Por ejemplo, el n ́umero 125 resulta en
+-- [1,2,5]. Para ello podemos usar la funci ́on repr del ejercicio anterior.
+-- dobleD :: [ Int ] →[ Int ]
+-- Se recorre la lista desde el final hacia adelante y se multiplica por
+-- dos cada segundo d ́ıgito. Por ejemplo, dobleD [7,2,4,5] resulta en
+-- [14,2,8,5].
+-- sumaD :: [ Int ] →Int
+-- Se suman las posiciones de la lista; al sumarlas, las posiciones que
+-- sean mayores que 9 deben ser ajustadas rest ́andole 9.
+-- Por ejemplo, sumaD [14,2,8,5] resulta en (14 −9) + 2 + 8 + 5.
+-- validar :: Int →Bool
+-- Si el resultado de la suma anterior es m ́ultiplo de 10 entonces el
+-- n ́umero original es v ́alido.
+-- (a) Implemente las funciones dobleD , sumaD y validar .
+-- (b) Defina una funci ́on
+-- luhn :: Int →Bool
+-- que realice la validaci ́on de un n ́umero mediante la composici ́on de
+-- las funciones anteriores.
+dobleD :: [ Int ] -> [ Int ]
+dobleD = fst . foldr fn ([], 0)
+    where
+        fn a (acc, 0) = (a:acc, 1)
+        fn a (acc, 1) = ((a*2):acc, 0)
+
+sumaD :: [ Int ] -> Int
+sumaD = foldl fn 0
+    where
+        fn b a
+            | a > 9 = a - 9 + b
+            | otherwise = a + b
+            
+validar n = (mod n 10) == 0
+
+luhn = validar . sumaD . dobleD . repr
