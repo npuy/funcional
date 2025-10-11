@@ -1,6 +1,4 @@
 -- 1. Considere la siguiente definici ́on de los n ́umeros naturales:
-data Nat = Zero | Succ Nat
-    deriving Show
 -- Ejemplos de naturales son: Zero, Succ Zero, Succ (Succ Zero), etc. De
 -- esta forma, la representaci ́on del n - ́esimo natural es de la forma SuccnZero.
 -- (a) Defina las siguientes funciones sobre los naturales:
@@ -59,3 +57,69 @@ fib (Succ (Succ n)) = suma (fib $ Succ n) $ fib n
 -- de fibonacci. Implemente esta definici ́on alternativa.
 fibFast = fst . foldN fn (Succ Zero, Zero)
     where fn (a, b) = (suma a b, a)
+
+-- 2. Suponga que definimos los enteros de la siguinte forma:
+data Nat = Zero | Succ Nat
+    deriving (Show, Eq, Ord)
+data OurInt = IntZero | Pos Nat | Neg Nat
+    deriving Show
+-- tal que IntZero representa el cero de los enteros, Pos los enteros positivos
+-- (1,2,...) y Neg los negativos (-1,-2,...). Por ejemplo, el 2 es dado por
+-- Pos (Succ Zero), mientras que el -1 por Neg Zero.
+-- (a) Defina la instancia de la clase Num para OurInt .
+-- Prec resta n m -> n >= m
+resta :: Nat -> Nat -> Nat
+resta n Zero = n
+resta (Succ n) (Succ m) = resta n m
+
+sumaoi :: OurInt -> OurInt -> OurInt
+sumaoi n IntZero = n
+sumaoi (Pos n) (Pos m) = (Pos $ Succ $ suma n m)
+sumaoi (Neg n) (Neg m) = (Neg $ Succ $ suma n m)
+sumaoi (Pos n) (Neg m)
+    | n > m = (Pos $ resta n m)
+    | m > n = (Neg $ resta m n)
+    | otherwise = IntZero
+sumaoi n m = sumaoi m n
+
+negateoi :: OurInt -> OurInt
+negateoi IntZero = IntZero
+negateoi (Pos n) = (Neg n)
+negateoi (Neg n) = (Pos n)
+
+muloi :: OurInt -> OurInt -> OurInt
+muloi IntZero _ = IntZero
+muloi (Pos Zero) m = m
+muloi (Pos (Succ n)) m = sumaoi m $ muloi (Pos n) m
+muloi (Neg n) m = negateoi $ muloi (Pos n) m
+
+absoi :: OurInt -> OurInt
+absoi (Neg n) = (Pos n)
+absoi n = n
+
+signumoi :: OurInt -> OurInt
+signumoi IntZero = IntZero
+signumoi (Pos n) = (Pos Zero)
+signumoi (Neg n) = (Neg Zero)
+
+fromIntegeroi :: Integer -> OurInt
+fromIntegeroi n 
+    | n == 0 = IntZero
+    | n > 0 = (Pos $ int2nat n)
+    | otherwise = (Neg $ int2nat n)
+
+instance Num OurInt where
+    (+) = sumaoi
+    (*) = muloi
+    abs = absoi
+    signum = signumoi
+    fromInteger = fromIntegeroi
+    negate = negateoi
+
+-- (b) ¿Qu ́e problema tiene esta otra representaci ́on?
+-- data OtroInt = OZero |OPos OtroInt |ONeg OtroInt
+-- O dicho de otra forma, que propiedad tiene la definici ́on de OurInt
+-- que no la tiene OtroInt ?
+-- ¿Y esta otra?
+-- data OtroInt ′= OPos Nat |ONeg Nat
+-- Propiedad de unicidad de reprecentacion
