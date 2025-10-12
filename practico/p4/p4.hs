@@ -123,3 +123,42 @@ instance Num OurInt where
 -- ¿Y esta otra?
 -- data OtroInt ′= OPos Nat |ONeg Nat
 -- Propiedad de unicidad de reprecentacion
+
+-- 3. Considere la siguiente definici ́on de  ́arbol binario:
+data Tree a = Empty | Node (Tree a) a (Tree a)
+    deriving Show
+-- (a) Defina las recorridas en inorder, preorder y postorder sobre un  ́arbol
+-- binario, las cuales listan los elementos del  ́arbol en el respectivo orden.
+-- Todas ellas tienen tipo Tree a →[ a ].
+extree = (Node (Node Empty 1 Empty) 2 (Node Empty 3 (Node Empty 4 Empty)))
+
+inorder :: Tree a -> [a]
+inorder Empty = []
+inorder (Node l n r) = (inorder l) ++ (n : inorder r)
+
+preorder :: Tree a -> [a]
+preorder Empty = []
+preorder (Node l n r) = (n : preorder l) ++ (preorder r)
+
+postorder :: Tree a -> [a]
+postorder Empty = []
+postorder (Node l n r) = (postorder l) ++ (postorder r) ++ [n]
+
+-- (b) Defina la funci ́on mkTree :: Ord a ⇒[ a ] →Tree a que construye un
+--  ́arbol binario de b ́usqueda a partir de una lista. (El  ́arbol generado
+-- no precisa estar balanceado.)
+insert :: Ord a => Tree a -> a -> Tree a
+insert Empty n = (Node Empty n Empty)
+insert (Node l m r) n
+    | n > m = (Node l m (insert r n))
+    | otherwise = (Node (insert l n) m r)
+
+mkTreeacc :: Ord a => [a] -> Tree a -> Tree a
+mkTreeacc [] acc = acc
+mkTreeacc (n:r) acc = mkTreeacc r (insert acc n)
+
+mkTree :: Ord a => [a] -> Tree a
+mkTree a = mkTreeacc a Empty
+
+-- (c) Que hace la composici ́on inorder ◦mkTree?
+-- retorna la misma lista que se ingresa
