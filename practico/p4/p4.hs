@@ -162,3 +162,63 @@ mkTree a = mkTreeacc a Empty
 
 -- (c) Que hace la composici ́on inorder ◦mkTree?
 -- retorna la misma lista que se ingresa
+
+-- 4. Considere el tipo de los  ́arboles binarios con informaci ́on en las hojas:
+data BTree a = Leaf a | Fork (BTree a) (BTree a)
+    deriving Show
+-- (a) Defina la funci ́on depths :: BTree a → BTree Int que reemplaza el
+-- valor en cada hoja del  ́arbol por su profundidad en el mismo. La
+-- profundidad de la ra ́ız es cero. Por ejemplo:
+-- depths (Fork (Fork (Leaf ’a’) (Leaf ’b’)) (Leaf ’c’))
+-- =
+-- Fork (Fork (Leaf 2) (Leaf 2)) (Leaf 1)
+depths :: BTree a -> BTree Int
+depthsacc (Leaf _) acc = Leaf acc
+depthsacc (Fork l r) acc = (Fork (depthsacc l (acc + 1)) (depthsacc r (acc + 1)))
+
+depths a = depthsacc a 0
+
+-- (b) Defina la funci ́on balanced :: BTree a → Bool que determina si un
+--  ́arbol est ́a balanceado. Entendemos por balanceado si el n ́umero de
+-- hojas en los sub ́arboles izquierdo y derecho de todo nodo difiere a
+-- lo m ́as en uno. Las hojas se consideran balanceadas. Sugerencia:
+-- primero defina una funci ́on size que compute el n ́umero de hojas de
+-- un  ́arbol.
+size :: BTree a -> Int
+size (Leaf _) = 1
+size (Fork l r) = size(l) + size(r)
+balanced :: BTree a -> Bool
+balanced (Leaf _) = True
+balanced (Fork l r) = (balanced l) && (balanced r) && abs(sl - sr) <= 1
+    where 
+        sl = size l
+        sr = size r
+
+-- (c) Defina la funci ́on mkBTree :: [ a ] → BTree a que convierte una lista
+-- no vac ́ıa de valores de tipo a en un  ́arbol balanceado. Sugerencia:
+-- primero defina una funci ́on que parta una lista en dos mitades cuyo
+-- largo difiera a lo m ́as en uno.
+split :: [a] -> ([a],[a])
+split [] = ([],[])
+split a = ((take half a),(drop half a))
+    where 
+        la = length a
+        half = div la 2
+mkBTree :: [a] -> BTree a
+mkBTree [x] = (Leaf x)
+mkBTree [x,y] = (Fork (Leaf x) (Leaf y))
+mkBTree a = (Fork (mkBTree fh) (mkBTree sh))
+    where
+        (fh, sh) = split a
+
+-- (d) Defina la funci ́on retrieve :: BTree a →Int →a que retorna el valor
+-- contenido en la n - ́esima hoja de un  ́arbol contada de izquierda a
+-- derecha. El valor n es pasado como uno de los par ́ametros. Las
+-- hojas se empiezan a numerar desde 1.
+retrieveaux (Leaf a) n acc = (acc + 1, a)
+retrieveaux (Fork l r) n acc = if n == nextacc then (lastacc, a) else (lastacc, b)
+    where 
+        (nextacc, a) = retrieveaux l n acc
+        (lastacc, b) = retrieveaux r n nextacc
+retrieve :: BTree a -> Int -> a
+retrieve arr n = snd $ retrieveaux arr n 0
