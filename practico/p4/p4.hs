@@ -55,8 +55,12 @@ fib (Succ (Succ n)) = suma (fib $ Succ n) $ fib n
 -- naturales y lo podr ́a verificar. Hay una mejor definici ́on, que es lin-
 -- eal, la cual utiliza una forma “iterativa” para computar los n ́umeros
 -- de fibonacci. Implemente esta definici ́on alternativa.
-fibFast = fst . foldN fn (Succ Zero, Zero)
-    where fn (a, b) = (suma a b, a)
+fibFast = fst . foldN fn (Zero, Succ Zero)
+    where fn (a, b) = (b, suma a b)
+
+-- fibFastlazy = 0 : 1 : zipWith (+) fibFastlazy (tail fibFastlazy)
+
+-- fibFastlazytake n = take n fibFastlazy
 
 -- 2. Suponga que definimos los enteros de la siguinte forma:
 data Nat = Zero | Succ Nat
@@ -160,8 +164,14 @@ mkTreeacc (n:r) acc = mkTreeacc r (insert acc n)
 mkTree :: Ord a => [a] -> Tree a
 mkTree a = mkTreeacc a Empty
 
+mkTree' [] = Empty
+mkTree' (x:xs) = Node l x r
+    where
+        l = mkTree' $ filter (<= x) xs
+        r = mkTree' $ filter (> x) xs
+
 -- (c) Que hace la composici ́on inorder ◦mkTree?
--- retorna la misma lista que se ingresa
+-- retorna la lista ordenada (implementa quick sort)
 
 -- 4. Considere el tipo de los  ́arboles binarios con informaci ́on en las hojas:
 data BTree a = Leaf a | Fork (BTree a) (BTree a)
@@ -204,6 +214,7 @@ split a = ((take half a),(drop half a))
     where 
         la = length a
         half = div la 2
+
 mkBTree :: [a] -> BTree a
 mkBTree [x] = (Leaf x)
 mkBTree [x,y] = (Fork (Leaf x) (Leaf y))
