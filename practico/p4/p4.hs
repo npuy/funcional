@@ -233,3 +233,55 @@ retrieveaux (Fork l r) n acc = if n == nextacc then (lastacc, a) else (lastacc, 
         (lastacc, b) = retrieveaux r n nextacc
 retrieve :: BTree a -> Int -> a
 retrieve arr n = snd $ retrieveaux arr n 0
+
+-- 5. El tipo de los  ́arboles binarios homog ́eneos:
+data HTree a = Tip a | Bin (HTree a) a (HTree a)
+    deriving Show
+-- representa  ́arboles binarios que contienen informaci ́on tanto en sus no-
+-- dos como en sus hojas. Dichos  ́arboles est ́an emparentados tanto con los
+--  ́arboles de tipo Tree a como con los de tipo BTree a.
+-- (a) Defina la correspondiente funci ́on map para este tipo:
+mapHT :: (a -> b) -> (HTree a -> HTree b)
+mapHT f (Tip a) = Tip $ f a
+mapHT f (Bin l a r) = Bin (mapHT f l) (f a) (mapHT f r)
+
+-- (b) Defina una funci ́on subtrees :: BTree a →HTree (BTree a ) que dado
+-- un  ́arbol binario con informaci ́on en las hojas computa un  ́arbol ho-
+-- mog ́eneo con su misma forma y tal que el valor almacenado en cada
+-- nodo contiene el correspondiente  ́arbol binario que tiene ra ́ız en ese
+-- nodo en el  ́arbol original. Por ejemplo:
+-- subtrees (Fork (Leaf 2) (Fork (Leaf 3) (Leaf 4)))
+-- =
+-- Bin (Tip (Leaf 2))
+-- (Fork (Leaf 2) (Fork (Leaf 3) (Leaf 4)))
+-- (Bin (Tip (Leaf 3))
+-- (Fork (Leaf 3) (Leaf 4))
+-- (Tip (Leaf 4)))
+
+-- data BTree a = Leaf a | Fork (BTree a) (BTree a)
+
+subtrees :: BTree a -> HTree (BTree a)
+subtrees l@(Leaf a) = Tip l
+subtrees t@(Fork l r) = Bin (subtrees l) t (subtrees r)
+
+-- (c) Defina la funci ́on sizes :: BTree a → HTree Int que dado un  ́arbol
+-- binario retorna el  ́arbol homog ́eneo que en cada nodo contiene el
+-- n ́umero de hojas que tiene el correspondiente  ́arbol binario con ra ́ız
+-- en ese nodo. Por ejemplo:
+-- sizes (Fork (Leaf 2) (Fork (Leaf 3) (Leaf 4)))
+-- =
+-- Bin (Tip 1) 3 (Bin (Tip 1) 2 (Tip 1))
+vtree (Tip a) = a
+vtree (Bin _ a _) = a
+
+sizes :: BTree a -> HTree Int
+sizes (Leaf a) = Tip 1
+sizes (Fork l r) = (Bin treesl st treesr)
+    where
+        treesl = sizes l
+        treesr = sizes r
+        st = (vtree treesl) + (vtree treesr)
+
+-- (d) Defina la funci ́on sizes ahora usando las partes a) y b).
+-- sizes :: BTree a -> HTree Int
+-- sizes = mapHT size . subtrees
