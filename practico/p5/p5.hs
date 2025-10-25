@@ -1,0 +1,140 @@
+-- 1. Dada la siguiente definici ́on:
+-- replicate 0 _ = [ ]
+-- replicate n x = x : replicate (n - 1) x
+-- Describir las secuencias de reducci ́on en los casos de evaluaci ́on perezosa
+-- y por valor para las siguientes expresiones:
+-- (a) head (replicate 5 1)
+-- lazy evaluation:
+-- head (replicate 5 1)
+-- = head (1 : replicate 4 1)
+-- = 1
+-- strict evaluation:
+-- head (replicate 5 1)
+-- = head (1 : replicate 4 1)
+-- = head (1 : 1 : replicate 3 1)
+-- = head (1 : 1 : 1 : replicate 2 1)
+-- = head (1 : 1 : 1 : 1 : replicate 1 1)
+-- = head (1 : 1 : 1 : 1 : 1 : replicate 0 1)
+-- = head (1 : 1 : 1 : 1 : 1 : [ ])
+-- = 1
+-- (b) map (∗2) (replicate 2 2)
+-- lazy evaluation:
+-- map (∗2) (replicate 2 2)
+-- = map (∗2) (2 : replicate 1 2)
+-- = (∗2) 2 : map (∗2) (replicate 1 2)
+-- = 4 : map (∗2) (replicate 1 2)
+-- = 4 : map (∗2) (2 : replicate 0 2)
+-- = 4 : (∗2) 2 : map (∗2) (replicate 0 2)
+-- = 4 : 4 : map (∗2) (replicate 0 2)
+-- = 4 : 4 : map (∗2) [ ]
+-- = 4 : 4 : [ ]
+-- = [4, 4]
+-- strict evaluation:
+-- map (∗2) (replicate 2 2)
+-- = map (∗2) (2 : replicate 1 2)
+-- = map (∗2) (2 : 2 : replicate 0 2)
+-- = map (∗2) (2 : 2 : [ ])
+-- = (∗2) 2 : map (∗2) (2 : [ ])
+-- = 4 : map (∗2) (2 : [ ])
+-- = 4 : (∗2) 2 : map (∗2) [ ]
+-- = 4 : 4 : map (∗2) [ ]
+-- = 4 : 4 : [ ]
+-- = [4, 4]
+-- (c) length (map (∗2) (replicate 2 2))
+-- lazy evaluation:
+-- length (map (∗2) (replicate 2 2))
+-- = length (map (∗2) (2 : replicate 1 2))
+-- = length ((∗2) 2 : map (∗2) (replicate 1 2))
+-- = 1 + length (map (∗2) (replicate 1 2))
+-- = 1 + length (map (∗2) (2 : replicate 0 2))
+-- = 1 + length ((∗2) 2 : map (∗2) (replicate 0 2))
+-- = 1 + 1 + length (map (∗2) (replicate 0 2))
+-- = 1 + 1 + length (map (∗2) [ ])
+-- = 1 + 1 + length [ ]
+-- = 1 + 1 + 0
+-- = 2
+-- strict evaluation:
+-- length (map (∗2) (replicate 2 2))
+-- = length (map (∗2) (2 : replicate 1 2))
+-- = length (map (∗2) (2 : 2 : replicate 0 2))
+-- = length (map (∗2) (2 : 2 : [ ]))
+-- = length ((∗2) 2 : map (∗2) (2 : [ ]))
+-- = length (4 : map (∗2) (2 : [ ]))
+-- = length (4 : (∗2) 2 : map (∗2) [ ])
+-- = length (4 : 4 : map (∗2 [ ]))
+-- = length (4 : 4 : [ ])
+-- = 1 + length (4 : [ ])
+-- = 1 + 1 + length [ ]
+-- = 1 + 1 + 0
+-- = 2 + 0
+-- = 2
+
+-- 2. Hacer lo mismo que en el ejercicio 1, pero considerando la siguiente definici ́on
+-- de replicate:
+-- replicate n x = take n (repeat x )
+
+-- (a) head (replicate 5 1)
+-- lazy evaluation:
+-- head (replicate 5 1)
+-- = head (take 5 (repeat 1))
+-- = head (1 : take 4 (repeat 1))
+-- = 1
+
+-- strict evaluation:
+-- head (replicate 5 1)
+-- = head (take 5 (repeat 1))
+-- = head (take 5 (1 : repeat 1))
+-- = head (take 5 (1 : 1 : repeat 1))
+-- = head (take 5 (1 : 1 : 1 : repeat 1))
+-- = head (take 5 (1 : 1 : 1 : 1 : repeat 1))
+-- = ...
+
+-- (b) map (∗2) (replicate 2 2)
+-- lazy evaluation:
+-- map (∗2) (replicate 2 2)
+-- = map (∗2) (take 2 (repeat 2))
+-- = map (∗2) (take 2 (2 : repeat 2))
+-- = map (∗2) (2 : take 1 (repeat 2))
+-- = (∗2) 2 : map (∗2) (take 1 (repeat 2))
+-- = 4 : map (∗2) (take 1 (repeat 2))
+-- = 4 : map (∗2) (take 1 (2 : repeat 2))
+-- = 4 : map (∗2) (2 : take 0 (repeat 2))
+-- = 4 : (∗2) 2 : map (∗2) (take 0 (repeat 2))
+-- = 4 : 4 : map (∗2) (take 0 (repeat 2))
+-- = 4 : 4 : map (∗2) [ ]
+-- = 4 : 4 : [ ]
+-- = [4, 4]
+
+-- strict evaluation:
+-- map (∗2) (replicate 2 2)
+-- = map (∗2) (take 2 (repeat 2))
+-- = map (∗2) (take 2 (2 : repeat 2))
+-- = map (∗2) (take 2 (2 : 2 : repeat 2))
+-- = map (∗2) (take 2 (2 : 2 : 2 : repeat 2))
+-- = ...
+
+-- (c) length (map (∗2) (replicate 2 2))
+-- lazy evaluation:
+-- length (map (∗2) (replicate 2 2))
+-- = length (map (∗2) (take 2 (repeat 2)))
+-- = length (map (∗2) (take 2 (2 : repeat 2)))
+-- = length (map (∗2) (2 : take 1 (repeat 2)))
+-- = length ((∗2) 2 : map (∗2) (take 1 (repeat 2)))
+-- = 1 + length (map (∗2) (take 1 (repeat 2)))
+-- = 1 + length (map (∗2) (take 1 (2 : repeat 2)))
+-- = 1 + length (map (∗2) (2 : take 0 (repeat 2)))
+-- = 1 + length ((∗2) 2 : map (∗2) (take 0 (repeat 2)))
+-- = 1 + 1 + length (map (∗2) (take 0 (repeat 2)))
+-- = 1 + 1 + length (map (∗2) [ ])
+-- = 1 + 1 + length [ ]
+-- = 1 + 1 + 0
+-- = 2 + 0
+-- = 2
+
+-- strict evaluation:
+-- length (map (∗2) (replicate 2 2))
+-- = length (map (∗2) (take 2 (repeat 2)))
+-- = length (map (∗2) (take 2 (2 : repeat 2)))
+-- = length (map (∗2) (take 2 (2 : 2 : repeat 2)))
+-- = length (map (∗2) (take 2 (2 : 2 : 2 : repeat 2)))
+-- = ...
