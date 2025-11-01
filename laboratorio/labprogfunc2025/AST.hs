@@ -1,7 +1,6 @@
-{- Grupo: X
+{- Grupo: 3
    Integrante(s):
-     Apellido, Nombre, XXXXXXXX
-     Apellido, Nombre, XXXXXXXX
+     Pereira, Nicolas, 51397864
 -}
 
 module AST where
@@ -27,7 +26,13 @@ type JSONNumber = Integer
 
 -- instancia de Show
 instance Show JSON where
-    show = undefined
+  show (JString s) = "\"" ++ s ++ "\""
+  show (JNumber n) = show n
+  show (JBoolean b) = if b then "true" else "false"
+  show (JNull) = "null"
+  show (JObject obj) = "{" ++ intercalate ", " (map showField obj) ++ "}"
+      where showField (k,v) = "\"" ++ k ++ "\": " ++ show v
+  show (JArray arr) = "[" ++ intercalate ", " (map show arr) ++ "]"
 
 -- Instancia de read.
 -- Se hace el parsing que se define más adelante.

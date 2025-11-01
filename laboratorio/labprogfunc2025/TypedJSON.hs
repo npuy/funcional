@@ -1,7 +1,6 @@
-{- Grupo: X
+{- Grupo: 3
    Integrante(s):
-     Apellido, Nombre, XXXXXXXX
-     Apellido, Nombre, XXXXXXXX
+     Pereira, Nicolas, 51397864
 -}
 
 module TypedJSON where
