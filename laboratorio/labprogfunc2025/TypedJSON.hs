@@ -74,6 +74,6 @@ typeWf (TyObject obj) = objectWf obj && all (\(_,t) -> typeWf t) obj
 
 -- dado un valor JSON v, y un tipo t, decide si v tiene tipo t.
 hasType :: JSON -> JSONType -> Bool
-hasType j t =
-  | Just tj = tj == t
-  | Nothing = False
+hasType j t = case typeOf j of
+                Just tj -> tj == t
+                Nothing -> False
