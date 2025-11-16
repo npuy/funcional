@@ -13,6 +13,9 @@ import TypedJSON
 -- Notar que NO se puede importar el módulo AST, que es interno a la biblioteca.
 ---------------------------------------------------------------------------------------
 
+-- ! Nota para el lector, cuando empece el archivo no habia visto las clases de Monadas
+-- ! por eso hay muchos Case of, para los ajustes use la do notation :)
+
 tyEstudiante =
   TyObject [ ("CI",       TyNum),
              ("apellido", TyString),
@@ -27,10 +30,62 @@ tyEstudiante =
                     ("semestre", TyNum)
                     ]
 
+-- Fallo en test: addCurso 1
+-- Fallo en test: addCurso 2
+
+resolver :: x -> Maybe x -> x
+resolver other mx = 
+  case mx of
+    Just x -> x
+    Nothing -> other
+
+-- Dado 2 cursos retorna true si estan ordenados
+ordenado :: JSON -> JSON -> Bool
+ordenado x y =
+  resolver False (
+    do
+      janiox <- lookupField x "anio"
+      janioy <- lookupField y "anio"
+      aniox <- fromJNumber janiox
+      anioy <- fromJNumber janioy
+      jsemestrex <- lookupField x "semestre"
+      jsemestrey <- lookupField y "semestre"
+      semestrex <- fromJNumber jsemestrex
+      semestrey <- fromJNumber jsemestrey
+      jcodigox <- lookupField x "codigo"
+      jcodigoy <- lookupField y "codigo"
+      codigox <- fromJNumber jcodigox
+      codigoy <- fromJNumber jcodigoy
+      if aniox > anioy then
+        return True
+      else if aniox /= anioy then
+        return False
+      else if semestrex > semestrey then
+        return True
+      else if semestrex /= semestrey then
+        return False
+      else if codigox < codigoy then
+        return True
+      else
+        return False
+  )
+
+-- Recibe la lista de cursos y retorna true si estan ordenados por anio, semestre y codigo
+estanOrdenadosCursos :: [JSON] -> Bool
+estanOrdenadosCursos [] = True
+estanOrdenadosCursos [_] = True
+estanOrdenadosCursos (x:xs@(y:_)) = (ordenado x y) && estanOrdenadosCursos xs
 
 -- decide si un valor que representa un estudiante esta bien formado
 estaBienFormadoEstudiante :: JSON -> Bool  
-estaBienFormadoEstudiante a = hasType a tyEstudiante
+estaBienFormadoEstudiante a = 
+  hasType a tyEstudiante &&
+  resolver False (
+    do
+      jcursos <- getCursos a
+      cursos <- fromJArray jcursos
+      return $ estanOrdenadosCursos cursos
+  )
 
 estudianteEjemplo :: JSON
 estudianteEjemplo = read "{ \"nombre\" : \"Haskell\", \"apellido\" : \"Curry\", \"CI\" : 12345678, \"cursos\" : [ { \"nombre\"   : \"Calculo DIV\", \"codigo\"   : 123, \"anio\"      : 2019, \"semestre\" : 1, \"nota\"     : 1 }, { \"nombre\"   : \"Calculo DIV\", \"codigo\"   : 123, \"anio\"      : 2019, \"semestre\" : 2, \"nota\"     : 7 } ] }"
@@ -82,12 +137,13 @@ fueAprobado cursoJson =
 -- obtiene arreglo con cursos que fueron aprobados
 aprobados :: JSON -> Maybe JSON
 aprobados estJson = 
-  case getCursos estJson of
-    Just cursosJsonArray -> 
-      case fromJArray cursosJsonArray of
-        Just cursosList -> Just . mkJArray $ filter fueAprobado cursosList
-        Nothing -> Nothing
-    Nothing -> Nothing
+  do 
+    estObj <- fromJObject estJson
+    cursosJsonArray <- getCursos estJson
+    cursosList <- fromJArray cursosJsonArray
+    let cursosAprobados = mkJArray $ filter fueAprobado cursosList
+    let newCursosObj = [("cursos", cursosAprobados)]
+    return $ mkJObject $ rightJoin estObj newCursosObj
 
 -- retorna si el curso fue rendido en un año dado
 fueRendidoEnAnio :: Integer -> JSON -> Bool
@@ -138,16 +194,36 @@ promedioEscolaridad estJson =
     Nothing -> Nothing
 
 -- agrega curso a lista de cursos de un estudiante
+-- addCurso curso estJson =
+--   case getCursos estJson of
+--     Just cursosJsonArray -> 
+--       case fromJArray cursosJsonArray of
+--         Just cursosList -> 
+--           case fromJObject estJson of 
+--             Just objEst ->
+--               mkJObject $ leftJoin [("cursos", mkJArray newCursosList)] objEst
+--               where newCursosList = (mkJObject curso) : cursosList
+--             Nothing -> estJson
+--         Nothing -> estJson
+--     Nothing -> estJson
 addCurso :: Object JSON -> JSON -> JSON
-addCurso curso estJson =
-  case getCursos estJson of
-    Just cursosJsonArray -> 
-      case fromJArray cursosJsonArray of
-        Just cursosList -> 
-          case fromJObject estJson of 
-            Just objEst ->
-              mkJObject $ leftJoin [("cursos", mkJArray newCursosList)] objEst
-              where newCursosList = (mkJObject curso) : cursosList
-            Nothing -> estJson
-        Nothing -> estJson
+addCurso curso estJson = case (
+  do
+    objEst <- fromJObject estJson
+    cursosJsonArray <- getCursos estJson
+    cursosList <- fromJArray cursosJsonArray
+    let newCursosList = mkJArray $ addCursoInOrder cursosList $ mkJObject curso
+    let newCursosObj = [("cursos", newCursosList)]
+    return $ mkJObject $ rightJoin objEst newCursosObj
+  ) of
+    Just json -> json
     Nothing -> estJson
+
+-- Dado una lista de cursos y un curso retorna la lista de cursos con el nuevo curso insertado en orden
+addCursoInOrder :: [JSON] -> JSON -> [JSON]
+addCursoInOrder [] curso = [curso]
+addCursoInOrder ls@(x:xs) curso =
+  if ordenado x curso then
+    x : addCursoInOrder xs curso
+  else
+    curso : ls
